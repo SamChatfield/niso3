@@ -1,6 +1,8 @@
+import csv
 import math
 import sys
 from pprint import pprint
+from statistics import mean
 
 import sexpdata
 
@@ -120,15 +122,29 @@ def question1(expr, n, x):
     return eval_expr(expr_parsed, n, x)
 
 
-def calc_fitness(expr, m):
-    pass
+def parse_data(data):
+    training_data = {}
+    with open(data) as f:
+        for row in csv.reader(f, delimiter='\t'):
+            *x, y = row
+            x = tuple(map(float, x))
+            y = float(y)
+            training_data[x] = y
+    return training_data
+
+
+def calc_fitness(expr, n, m, training_data):
+    sq_errs = [(y - eval_expr(expr, n, x)) ** 2 for x, y in training_data.items()]
+    fitness = mean(sq_errs)
+    return fitness
 
 
 def question2(expr, n, m, data):
     expr_parsed = sexpdata.loads(expr)
     print('expr_parsed:', file=sys.stderr)
     pprint(expr_parsed, stream=sys.stderr, indent=4)
-    return calc_fitness(expr_parsed, m)
+    training_data = parse_data(data)
+    return calc_fitness(expr_parsed, n, m, training_data)
 
 
 def main():
