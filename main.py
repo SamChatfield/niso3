@@ -7,6 +7,7 @@ from statistics import mean
 import sexpdata
 
 import arg_parser
+from expression import Expression
 
 
 # TODO: change to parameter v instead of e
@@ -115,6 +116,11 @@ def eval_expr(expr, n, x):
 
 
 def question1(expr, n, x):
+    expr = Expression(expr)
+    return expr.evaluate(x)
+
+
+def question1_old(expr, n, x):
     expr_parsed = sexpdata.loads(expr)
     print('expr_parsed:', file=sys.stderr)
     pprint(expr_parsed, stream=sys.stderr, indent=4)
