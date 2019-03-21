@@ -79,10 +79,21 @@ class Expression:
             print(f'func = {func}, args = {args}')
             evaluated_args = [arg.evaluate(x) for arg in args]
             print(f'evaluated_args = {evaluated_args}')
+
+            # Compute the result catching any math domain errors or complex results
+            try:
             res = func(*evaluated_args)
             print(f'res = {res}')
+                if isinstance(res, complex):
+                    return 0
             return res
+            except ValueError as err:
+                if 'math domain error' in str(err):
+                    return 0
+                raise err
         elif self._terminal:
             return self._terminal
         else:
             raise Exception('Expression was neither a function nor a terminal')
+
+    eval = evaluate
