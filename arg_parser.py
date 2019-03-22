@@ -3,11 +3,11 @@ import sys
 from pathlib import Path
 
 
-def x(x_str):
+def _x(x_str):
     return tuple(map(float, x_str.split(' ')))
 
 
-def data(data_path_str):
+def _data(data_path_str):
     data_path = Path(data_path_str)
     if not data_path.is_file():
         raise argparse.ArgumentTypeError(f'Data file not found at path {data_path}')
@@ -35,7 +35,7 @@ def parse():
     )
     parser.add_argument(
         '-x',
-        type=x
+        type=_x
     )
     parser.add_argument(
         '-m',
@@ -43,6 +43,14 @@ def parse():
     )
     parser.add_argument(
         '-data',
-        type=data
+        type=_data
+    )
+    parser.add_argument(
+        '-lambda',
+        type=int
+    )
+    parser.add_argument(
+        '-time_budget',
+        type=int
     )
     return parser.parse_args()
