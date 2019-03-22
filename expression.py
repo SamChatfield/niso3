@@ -1,3 +1,4 @@
+import sys
 import math
 import operator
 
@@ -8,7 +9,7 @@ import sexpdata
 
 def _from_string(expr_str):
     expr = sexpdata.loads(expr_str)
-    print(f'from_string returns: {expr}')
+    print(f'from_string returns: {expr}', file=sys.stderr)
     return expr
 
 
@@ -16,8 +17,35 @@ def _ifleq(a, b, x, y):
     return x if a <= b else y
 
 
+def _mod_abs_floor(a, n):
+    return abs(math.floor(a)) % n
+
+
+def _data(a, x):
+    n = len(x)
+    print(f'_data: a = {a}, n = {n}, x = {x}', file=sys.stderr)
+    assert isinstance(x, list)
+    # assert 0 < a < n
+    return x[_mod_abs_floor(a, n)]
+
+
+def _diff(a, b, x):
+    assert isinstance(x, list)
+    data_a = _data(a, x)
+    data_b = _data(b, x)
+    return data_a - data_b
+
+
+def _avg(a, b, x):
+    assert isinstance(x, list)
+    k = _mod_abs_floor(a, len(x))
+    l = _mod_abs_floor(b, len(x))
+    start = min(k, l)
+    end = max(k, l)
+    return (1 / abs(k - l)) * sum(x[start:end])
+
+
 Function = namedtuple('Function', ['func', 'args'])
-DATA_FUNCS = ['data', 'diff', 'avg']
 FUNC_MAP = {
     # Math functions
     'add': operator.add,
@@ -31,10 +59,12 @@ FUNC_MAP = {
     'max': max,
     'ifleq': _ifleq,
     # Data functions
-    'data': None,
-    'diff': None,
-    'avg': None,
+    'data': _data,
+    'diff': _diff,
+    'avg': _avg,
 }
+# The subset of functions which require x being passed as an additional argument
+DATA_FUNCS = list(FUNC_MAP.values())[-3:]
 
 
 class Expression:
@@ -67,31 +97,41 @@ class Expression:
             return f'{func} of {list(map(str, args))}'
         if self._terminal is not None:
             return f'{self._terminal}'
-            raise Exception('Expression was neither a function nor a terminal')
+        raise Exception('Expression was neither a function nor a terminal')
 
     __repr__ = __str__
 
     def evaluate(self, x=None):
         if self._function is not None:
             func, args = self._function
-            print(f'func = {func}, args = {args}')
-            evaluated_args = [arg.evaluate(x) for arg in args]
-            print(f'evaluated_args = {evaluated_args}')
+            print(f'func = {func}, args = {args}', file=sys.stderr)
 
-            # Compute the result catching any math domain errors or complex results
+            # Evaluate the Expression's children
+            evaluated_args = [arg.evaluate(x) for arg in args]
+
+            # Add the input vector x as an additional argument for data functions
+            if func in DATA_FUNCS:
+                evaluated_args.append(x)
+            print(f'evaluated_args = {evaluated_args}', file=sys.stderr)
+
+            # Compute the result catching relevant math errors
             try:
                 # Call the function
-            res = func(*evaluated_args)
-            print(f'res = {res}')
+                res = func(*evaluated_args)
+                print(f'res = {res}', file=sys.stderr)
+                # For complex results return 0
                 if isinstance(res, complex):
                     return 0
-            return res
+                # Return the result
+                return res
+            except ZeroDivisionError:
+                return 0
             except ValueError as err:
                 if 'math domain error' in str(err):
                     return 0
                 raise err
-            except ZeroDivisionError as err:
-                if 'division by zero' in str(err):
+            except OverflowError as err:
+                if 'math range error' in str(err):
                     return 0
                 raise err
         elif self._terminal is not None:
