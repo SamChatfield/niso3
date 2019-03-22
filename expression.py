@@ -24,20 +24,20 @@ def _mod_abs_floor(a, n):
 def _data(a, x):
     n = len(x)
     print(f'_data: a = {a}, n = {n}, x = {x}', file=sys.stderr)
-    assert isinstance(x, list)
+    assert isinstance(x, tuple)
     # assert 0 < a < n
     return x[_mod_abs_floor(a, n)]
 
 
 def _diff(a, b, x):
-    assert isinstance(x, list)
+    assert isinstance(x, tuple)
     data_a = _data(a, x)
     data_b = _data(b, x)
     return data_a - data_b
 
 
 def _avg(a, b, x):
-    assert isinstance(x, list)
+    assert isinstance(x, tuple)
     k = _mod_abs_floor(a, len(x))
     l = _mod_abs_floor(b, len(x))
     start = min(k, l)

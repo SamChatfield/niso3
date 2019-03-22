@@ -139,18 +139,30 @@ def parse_data(data):
     return training_data
 
 
-def calc_fitness(expr, n, m, training_data):
+def calc_fitness(expr, training_data):
+    sq_errs = [(y - expr.evaluate(x)) ** 2 for x, y in training_data.items()]
+    fitness = mean(sq_errs)
+    return fitness
+
+
+def calc_fitness_old(expr, n, m, training_data):
     sq_errs = [(y - eval_expr(expr, n, x)) ** 2 for x, y in training_data.items()]
     fitness = mean(sq_errs)
     return fitness
 
 
-def question2(expr, n, m, data):
+def question2(expr, data):
+    expr = Expression(expr)
+    training_data = parse_data(data)
+    return calc_fitness(expr, training_data)
+
+
+def question2_old(expr, n, m, data):
     expr_parsed = sexpdata.loads(expr)
     print('expr_parsed:', file=sys.stderr)
     pprint(expr_parsed, stream=sys.stderr, indent=4)
     training_data = parse_data(data)
-    return calc_fitness(expr_parsed, n, m, training_data)
+    return calc_fitness_old(expr_parsed, n, m, training_data)
 
 
 def main():
@@ -166,7 +178,8 @@ def main():
         print(question1(args.expr, args.n, args.x))
     elif args.question == 2:
         print('question 2', file=sys.stderr)
-        print(question2(args.expr, args.n, args.m, args.data))
+        # print(question2(args.expr, args.n, args.m, args.data))
+        print(question2(args.expr, args.data))
     elif args.question == 3:
         print('question 3', file=sys.stderr)
         pass

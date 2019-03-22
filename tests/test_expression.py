@@ -24,7 +24,7 @@ def test_eval_log():
     assert Expression('(log -1)').eval() == 0
 
 def test_eval_data():
-    assert Expression('(data 1)').eval([1.23, 4.56, 7.89]) == 4.56
+    assert Expression('(data 1)').eval((1.23, 4.56, 7.89)) == 4.56
 
 def test_eval():
     assert Expression('(add (mul 2 3) (log 4))').eval() == 8
