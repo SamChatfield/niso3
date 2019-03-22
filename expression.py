@@ -62,19 +62,17 @@ class Expression:
         assert not (self._function and self._terminal)
 
     def __str__(self):
-        if self._function:
+        if self._function is not None:
             func, args = self._function
             return f'{func} of {list(map(str, args))}'
-        elif self._terminal:
+        if self._terminal is not None:
             return f'{self._terminal}'
-        else:
             raise Exception('Expression was neither a function nor a terminal')
-
 
     __repr__ = __str__
 
     def evaluate(self, x=None):
-        if self._function:
+        if self._function is not None:
             func, args = self._function
             print(f'func = {func}, args = {args}')
             evaluated_args = [arg.evaluate(x) for arg in args]
@@ -82,6 +80,7 @@ class Expression:
 
             # Compute the result catching any math domain errors or complex results
             try:
+                # Call the function
             res = func(*evaluated_args)
             print(f'res = {res}')
                 if isinstance(res, complex):
@@ -91,7 +90,11 @@ class Expression:
                 if 'math domain error' in str(err):
                     return 0
                 raise err
-        elif self._terminal:
+            except ZeroDivisionError as err:
+                if 'division by zero' in str(err):
+                    return 0
+                raise err
+        elif self._terminal is not None:
             return self._terminal
         else:
             raise Exception('Expression was neither a function nor a terminal')
