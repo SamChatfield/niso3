@@ -162,6 +162,7 @@ def main():
     print('X:\n{}\n'.format(args.x), file=sys.stderr)
 
     if args.question == 1:
+        print('Q1:\n', file=sys.stderr)
         print(question1(args.expr, args.n, args.x))
     elif args.question == 2:
         print('question 2', file=sys.stderr)
