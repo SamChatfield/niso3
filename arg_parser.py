@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def x(x_str):
-    return list(map(float, x_str.split(' ')))
+    return tuple(map(float, x_str.split(' ')))
 
 
 def data(data_path_str):
