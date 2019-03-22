@@ -1,5 +1,3 @@
-import pytest
-
 from expression import Expression
 
 def test_eval_add():
