@@ -47,7 +47,8 @@ def parse():
     )
     parser.add_argument(
         '-lambda',
-        type=int
+        type=int,
+        dest='lambda_'
     )
     parser.add_argument(
         '-time_budget',

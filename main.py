@@ -34,6 +34,10 @@ def question2(expr, data):
     return calc_fitness(expr, training_data)
 
 
+def question3(lambda_, n, data, time_budget):
+    training_data = parse_data(data)
+
+
 def main():
     print('main', file=sys.stderr)
     args = arg_parser.parse()
@@ -43,13 +47,14 @@ def main():
     print('X:\n{}\n'.format(args.x), file=sys.stderr)
 
     if args.question == 1:
-        print('Q1:\n', file=sys.stderr)
+        print('question 1:\n', file=sys.stderr)
         print(question1(args.expr, args.x))
     elif args.question == 2:
         print('question 2', file=sys.stderr)
         print(question2(args.expr, args.data))
     elif args.question == 3:
         print('question 3', file=sys.stderr)
+        print(question3(args.lambda_, args.n, args.data, args.time_budget))
     else:
         print('Error: Invalid question number supplied', file=sys.stderr)
         sys.exit(1)
