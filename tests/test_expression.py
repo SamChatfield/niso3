@@ -26,3 +26,9 @@ def test_eval_data():
 
 def test_eval():
     assert Expression('(add (mul 2 3) (log 4))').eval() == 8
+
+def test_replace_subtree():
+    expr = Expression('(add 2 3)')
+    expr2 = Expression('(sub 5 4)')
+    repl_expr = expr.replace_subtree(1, expr2)
+    assert repl_expr == Expression('(add (sub 5 4) 3)')

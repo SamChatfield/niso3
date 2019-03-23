@@ -5,6 +5,7 @@ from statistics import mean
 import arg_parser
 from expression import Expression
 from individual import Individual
+from gp import GP
 
 
 def question1(expr, x):
@@ -29,8 +30,9 @@ def question2(expr, data):
     return ind.fitness(training_data)
 
 
-def question3(lambda_, n, data, time_budget):
+def question3(lambda_, data, time_budget):
     training_data = parse_data(data)
+    gprun = GP(lambda_, training_data)
 
 
 def main():
@@ -49,7 +51,7 @@ def main():
         print(question2(args.expr, args.data))
     elif args.question == 3:
         print('question 3', file=sys.stderr)
-        print(question3(args.lambda_, args.n, args.data, args.time_budget))
+        print(question3(args.lambda_, args.data, args.time_budget))
     else:
         print('Error: Invalid question number supplied', file=sys.stderr)
         sys.exit(1)

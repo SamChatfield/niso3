@@ -54,6 +54,7 @@ def growth(lambda_, max_depth, p_early_terminal=0.1):
 def ramped(lambda_, max_depth):
     pass
 
+
 INIT_METHODS = {
     'full': full,
     'growth': growth,
