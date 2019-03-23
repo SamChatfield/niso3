@@ -1,13 +1,13 @@
-import random
 import sys
+from random import randrange
 from typing import Tuple
 
 from individual import Individual
 
 
 def branch_swap(ind1: Individual, ind2: Individual) -> Tuple[Individual, Individual]:
-    ind1_idx = random.randrange(ind1.expression.length)
-    ind2_idx = random.randrange(ind2.expression.length)
+    ind1_idx = randrange(len(ind1.expression))
+    ind2_idx = randrange(len(ind2.expression))
     print(f'i1 = {ind1_idx}, i2 = {ind2_idx}', file=sys.stderr)
 
     ind1_subtree = ind1.expression.subtree_at(ind1_idx)

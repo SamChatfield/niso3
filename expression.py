@@ -121,10 +121,6 @@ class Expression:
         return self.__str__() == str(other_expr)
 
     @property
-    def length(self):
-        return self._length
-
-    @property
     def height(self):
         return self._height
 

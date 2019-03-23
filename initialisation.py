@@ -17,7 +17,7 @@ def _random_terminal():
     return random.uniform(-1.0, 1.0)
 
 
-def random_expression(max_depth=3, p_early_terminal=0):
+def random_expression(max_depth=5, p_early_terminal=0):
     def _random_expression(depth=0):
         early_terminal = p_early_terminal != 0 and random.random() < p_early_terminal
         if early_terminal or depth == max_depth:
