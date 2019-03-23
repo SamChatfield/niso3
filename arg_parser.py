@@ -8,7 +8,7 @@ def _x(x_str):
 
 
 def _data(data_path_str):
-    data_path = Path(data_path_str)
+    data_path = Path(data_path_str).expanduser().resolve()
     if not data_path.is_file():
         raise argparse.ArgumentTypeError(f'Data file not found at path {data_path}')
     else:

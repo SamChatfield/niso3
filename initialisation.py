@@ -2,6 +2,7 @@ import random
 import sys
 
 from expression import FUNC_MAP, Expression
+from individual import Individual
 
 # FUNCTION_SET = list(FUNC_MAP.values())
 FUNCTION_SET = list(FUNC_MAP.keys())
@@ -35,7 +36,7 @@ def random_expression(max_depth=3, p_early_terminal=0):
 def full(lambda_, depth):
     pop = []
     for i in range(lambda_):
-        ind = random_expression(depth)
+        ind = Individual(random_expression(depth))
         print(f'ind i={i}:\n{ind}\n', file=sys.stderr)
         pop.append(ind)
     return pop
@@ -44,7 +45,7 @@ def full(lambda_, depth):
 def growth(lambda_, max_depth, p_early_terminal=0.1):
     pop = []
     for i in range(lambda_):
-        ind = random_expression(max_depth, p_early_terminal)
+        ind = Individual(random_expression(max_depth, p_early_terminal))
         print(f'ind i={i}:\n{ind}\n', file=sys.stderr)
         pop.append(ind)
     return pop

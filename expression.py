@@ -148,14 +148,10 @@ class Expression:
                     return 0
                 # Return the result
                 return res
-            except ZeroDivisionError:
+            except (ZeroDivisionError, OverflowError):
                 return 0
             except ValueError as err:
                 if 'math domain error' in str(err):
-                    return 0
-                raise err
-            except OverflowError as err:
-                if 'math range error' in str(err):
                     return 0
                 raise err
         elif self._terminal is not None:

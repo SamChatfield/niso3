@@ -4,6 +4,7 @@ from statistics import mean
 
 import arg_parser
 from expression import Expression
+from individual import Individual
 
 
 def question1(expr, x):
@@ -22,16 +23,10 @@ def parse_data(data):
     return training_data
 
 
-def calc_fitness(expr, training_data):
-    sq_errs = [(y - expr.evaluate(x)) ** 2 for x, y in training_data.items()]
-    fitness = mean(sq_errs)
-    return fitness
-
-
 def question2(expr, data):
-    expr = Expression(expr)
+    ind = Individual(Expression(expr))
     training_data = parse_data(data)
-    return calc_fitness(expr, training_data)
+    return ind.fitness(training_data)
 
 
 def question3(lambda_, n, data, time_budget):
