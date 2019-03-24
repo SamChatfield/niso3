@@ -8,7 +8,7 @@ def _x(x_str):
 
 
 def _data(data_path_str):
-    data_path = Path(data_path_str)
+    data_path = Path(data_path_str).expanduser().resolve()
     if not data_path.is_file():
         raise argparse.ArgumentTypeError(f'Data file not found at path {data_path}')
     else:
@@ -16,7 +16,6 @@ def _data(data_path_str):
 
 
 def parse():
-    print('Parse args', file=sys.stderr)
     parser = argparse.ArgumentParser(
         description='NISO Exercise 3'
     )
@@ -47,7 +46,8 @@ def parse():
     )
     parser.add_argument(
         '-lambda',
-        type=int
+        type=int,
+        dest='lambda_'
     )
     parser.add_argument(
         '-time_budget',
