@@ -16,7 +16,6 @@ def _data(data_path_str):
 
 
 def parse():
-    print('Parse args', file=sys.stderr)
     parser = argparse.ArgumentParser(
         description='NISO Exercise 3'
     )

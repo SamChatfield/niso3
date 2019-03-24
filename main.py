@@ -1,11 +1,13 @@
 import csv
 import sys
+import time
 from statistics import mean
+from threading import Event, Thread
 
 import arg_parser
 from expression import Expression
-from individual import Individual
 from gp import GP
+from individual import Individual
 
 
 def question1(expr, x):
@@ -27,12 +29,33 @@ def parse_data(data):
 def question2(expr, data):
     ind = Individual(Expression(expr))
     training_data = parse_data(data)
-    return ind.fitness(training_data)
+    ind.train(training_data)
+    return ind.fitness
+
+
+def gp_thread(stop_event, lambda_, training_data, best_individuals):
+    gpobj = GP(lambda_, training_data, best_individuals)
+    i = 0
+    while not stop_event.is_set() and i < 1000:
+        gpobj.generation()
+        print(f'GEN {i}', file=sys.stderr)
+        print(f'FITNESSES: {sorted([i.fitness for i in gpobj._population])}', file=sys.stderr)
+        print(f'LENGTHS: {sorted([len(i.expression) for i in gpobj._population])}', file=sys.stderr)
+        i += 1
 
 
 def question3(lambda_, data, time_budget):
     training_data = parse_data(data)
-    gprun = GP(lambda_, training_data)
+    best_individuals = []
+    thread_stop = Event()
+    thread = Thread(target=gp_thread, args=(thread_stop, lambda_, training_data, best_individuals))
+    print(f'START: {time.time()}', file=sys.stderr)
+    thread.start()
+    time.sleep(time_budget)
+    best_ind = best_individuals[-1]
+    thread_stop.set()
+    print(f'END: {time.time()}', file=sys.stderr)
+    return best_ind
 
 
 def main():

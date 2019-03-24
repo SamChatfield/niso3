@@ -37,7 +37,7 @@ def full(lambda_, depth):
     pop = []
     for i in range(lambda_):
         ind = Individual(random_expression(depth))
-        print(f'ind i={i}:\n{ind}\n', file=sys.stderr)
+        # print(f'ind i={i}:\n{ind}\n', file=sys.stderr)
         pop.append(ind)
     return pop
 
@@ -46,7 +46,7 @@ def growth(lambda_, max_depth, p_early_terminal=0.1):
     pop = []
     for i in range(lambda_):
         ind = Individual(random_expression(max_depth, p_early_terminal))
-        print(f'ind i={i}:\n{ind}\n', file=sys.stderr)
+        # print(f'ind i={i}:\n{ind}\n', file=sys.stderr)
         pop.append(ind)
     return pop
 

@@ -10,7 +10,7 @@ import sexpdata
 
 def _from_string(expr_str):
     expr = sexpdata.loads(expr_str)
-    print(f'from_string returns: {expr}', file=sys.stderr)
+    # print(f'from_string returns: {expr}', file=sys.stderr)
     return expr
 
 
@@ -24,7 +24,7 @@ def _mod_abs_floor(a, n):
 
 def _data(a, x):
     n = len(x)
-    print(f'_data: a = {a}, n = {n}, x = {x}', file=sys.stderr)
+    # print(f'_data: a = {a}, n = {n}, x = {x}', file=sys.stderr)
     assert isinstance(x, tuple)
     # assert 0 < a < n
     return x[_mod_abs_floor(a, n)]
@@ -74,8 +74,9 @@ class Expression:
         self._function = None
         self._args = None
         self._terminal = None
-        self._length = None
-        self._height = None
+
+        if expr is None:
+            raise ValueError('Expr cannot be None')
 
         # If expr is a string, parse the s-expression
         if isinstance(expr, str):
@@ -93,19 +94,19 @@ class Expression:
             self._args = [Expression(arg) for arg in args]
             # Check that the number of args and the function arity match
             assert self._function.arity == len(self._args)
-            self._length = 1 + sum(len(child) for child in self._args)
-            self._height = 1 + max(child.height for child in self._args)
         # If expr represents a terminal
         else:
             self._terminal = expr
-            self._length = 1
-            self._height = 0
 
         # An expression cannot be both a function and a terminal
         assert not (self._function and self._terminal)
 
     def __len__(self):
-        return self._length
+        if self._function is not None:
+            return 1 + sum([len(child) for child in self._args])
+        if self._terminal is not None:
+            return 1
+        raise Exception('Expression was neither a function nor a terminal')
 
     def __str__(self):
         if self._function is not None:
@@ -122,7 +123,11 @@ class Expression:
 
     @property
     def height(self):
-        return self._height
+        if self._function is not None:
+            return 1 + max([child.height for child in self._args])
+        if self._terminal is not None:
+            return 0
+        raise Exception('Expression was neither a function nor a terminal')
 
     def expand(self):
         if self._function is not None:
@@ -134,7 +139,7 @@ class Expression:
     def evaluate(self, x=None):
         if self._function is not None:
             func, _ = self._function
-            print(f'func = {func}, args = {self._args}', file=sys.stderr)
+            # print(f'func = {func}, args = {self._args}', file=sys.stderr)
 
             # Evaluate the Expression's children
             evaluated_args = [arg.evaluate(x) for arg in self._args]
@@ -144,14 +149,14 @@ class Expression:
                 if x is None:
                     raise ValueError('Input vector x was None for an expression with data functions')
                 evaluated_args.append(x)
-            print(f'evaluated_args = {evaluated_args}', file=sys.stderr)
+            # print(f'evaluated_args = {evaluated_args}', file=sys.stderr)
 
             # Compute the result catching relevant math errors
             try:
                 # Call the function
-                print(f'EVALUATE {func} for {evaluated_args}', file=sys.stderr)
+                # print(f'EVALUATE {func} for {evaluated_args}', file=sys.stderr)
                 res = func(*evaluated_args)
-                print(f'res = {res}', file=sys.stderr)
+                # print(f'res = {res}', file=sys.stderr)
                 # For complex results return 0
                 if isinstance(res, complex):
                     return 0
@@ -172,8 +177,8 @@ class Expression:
     eval = evaluate
 
     def subtree_at(self, idx):
-        if idx >= self._length:
-            raise ValueError(f'idx {idx} out of range for length {self._length}')
+        if idx >= self.__len__():
+            raise ValueError(f'idx {idx} out of range for length {self.__len__()}')
         if idx == 0:
             return self
         for child in self._args:
@@ -182,10 +187,13 @@ class Expression:
             if idx <= len(child):
                 return child.subtree_at(idx - 1)
             idx -= len(child)
+            # return child.subtree_at(idx - len(child))
+        raise Exception(f'Nothing returned by subtree_at, self={self}, idx={idx}')
 
     def replace_subtree(self, idx, subtree):
-        if idx >= self._length:
-            raise ValueError(f'idx {idx} out of range for length {self._length}')
+        assert subtree is not None
+        if idx >= self.__len__():
+            raise ValueError(f'idx {idx} out of range for length {self.__len__()}')
         if idx == 0:
             return deepcopy(subtree)
         newtree = deepcopy(self)
@@ -195,6 +203,7 @@ class Expression:
                 break
             elif idx <= len(newtree._args[i]):
                 newtree._args[i] = newtree._args[i].replace_subtree(idx - 1, subtree)
+                break
             else:
                 idx -= len(newtree._args[i])
         return newtree

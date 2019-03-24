@@ -32,3 +32,8 @@ def test_replace_subtree():
     expr2 = Expression('(sub 5 4)')
     repl_expr = expr.replace_subtree(1, expr2)
     assert repl_expr == Expression('(add (sub 5 4) 3)')
+
+    expr = Expression('(add (sub 3 2) (mul 4 (sqrt 16)))')
+    expr2 = Expression('1')
+    repl_expr = expr.replace_subtree(3, expr2)
+    assert repl_expr == Expression('(add (sub 3 1) (mul 4 (sqrt 16)))')

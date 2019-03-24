@@ -3,8 +3,9 @@ from statistics import mean
 
 
 class Individual:
-    def __init__(self, expression):
+    def __init__(self, expression, training_data=None):
         self._expression = expression
+        self._training_data = training_data
         self._fitness = None
 
     def __str__(self):
@@ -14,6 +15,9 @@ class Individual:
 
     def __eq__(self, other_ind):
         return self.expression == other_ind.expression
+
+    def __lt__(self, other_ind):
+        return self.fitness < other_ind.fitness
 
     @property
     def expression(self):
@@ -25,7 +29,14 @@ class Individual:
         except OverflowError:
             return math.inf
 
-    def fitness(self, training_data):
-        sq_errs = [self._sq_err(x, y) for x, y in training_data.items()]
-        self._fitness = mean(sq_errs)
+    @property
+    def fitness(self):
+        """Return the fitness of this individual"""
+        # Compute fitness if it hasn't been computed previously
+        if self._fitness is None:
+            sq_errs = [self._sq_err(x, y) for x, y in self._training_data.items()]
+            self._fitness = mean(sq_errs)
         return self._fitness
+
+    def train(self, training_data):
+        self._training_data = training_data
