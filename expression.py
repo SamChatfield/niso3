@@ -73,6 +73,7 @@ class Expression:
         # An expression can be either a function or a terminal
         self._function = None
         self._args = None
+        self._function_name = None
         self._terminal = None
 
         if expr is None:
@@ -92,6 +93,7 @@ class Expression:
                 func_name = func_name.value()
             self._function = FUNC_MAP[func_name]
             self._args = [Expression(arg) for arg in args]
+            self._function_name = func_name
             # Check that the number of args and the function arity match
             assert self._function.arity == len(self._args)
         # If expr represents a terminal
@@ -110,8 +112,8 @@ class Expression:
 
     def __str__(self):
         if self._function is not None:
-            func, _ = self._function
-            return pformat(self.expand())
+            args_str = ' '.join(arg.__str__() for arg in self._args)
+            return f'({self._function_name} {args_str})'
         if self._terminal is not None:
             return f'{self._terminal}'
         raise Exception('Expression was neither a function nor a terminal')
