@@ -1,4 +1,3 @@
-import sys
 from random import randrange
 from typing import Tuple
 

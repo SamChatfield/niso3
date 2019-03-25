@@ -9,11 +9,10 @@ import selection
 
 class GP:
     def __init__(self, lambda_, training_data, best_individuals=[],
-        init_method='growth', max_depth=5,
-        selection_method='truncation', parent_proportion=0.25,
-        crossover_method='branch_swap',
-        mutation_method='branch_replacement'
-    ):
+                 init_method='growth', max_depth=5,
+                 selection_method='truncation', parent_proportion=0.25,
+                 crossover_method='branch_swap',
+                 mutation_method='branch_replacement'):
         self._lambda = lambda_
         self._training_data = training_data
         self._best_individuals = best_individuals

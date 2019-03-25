@@ -1,9 +1,7 @@
 import math
 import operator
-import sys
 from collections import namedtuple
 from copy import deepcopy
-from pprint import pformat
 
 import sexpdata
 
