@@ -1,3 +1,3 @@
 #!/bin/bash
-./build.sh
+./scripts/build.sh
 docker run --rm niso3-sxc678
