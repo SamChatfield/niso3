@@ -33,32 +33,22 @@ class GP:
         # Train the population
         for ind in self._population:
             ind.train(self._training_data)
-        # print(f'Trained pop:\n{self._population}', file=sys.stderr)
 
         # Sort the population
         sorted_pop = sorted(self._population)
-        # print(f'Sorted pop\n{sorted_pop}', file=sys.stderr)
 
-        # Use the selection method to get a list of breeding pairs [(Individual, Individual)]
-        breeding_pairs = selection.SELECTION_METHODS[self._selection_method](self._num_parents, sorted_pop)
-        # print(f'Breeding pairs:\n{breeding_pairs}', file=sys.stderr)
+        # Use the selection method to get pairs of parents and the individuals not selected
+        (parent_pairs, non_parents) = selection.SELECTION_METHODS[self._selection_method](self._num_parents, sorted_pop)
 
         # Generate children using crossover
         children = []
-        for ind1, ind2 in breeding_pairs:
-            child1, child2 = crossover.CROSSOVER_METHODS[self._crossover_method](ind1, ind2)
+        for ind1, ind2 in parent_pairs:
+            (child1, child2) = crossover.CROSSOVER_METHODS[self._crossover_method](ind1, ind2)
             children += [child1, child2]
-        # print(f'Children\n{children}', file=sys.stderr)
-
-        # Add children to the population
-        # pop_with_children = sorted_pop + children
 
         # Apply mutation
-        # mutated_pop = [mutation.MUTATION_METHODS[self._mutation_method](i) for i in pop_with_children]
         mutated_children = [mutation.MUTATION_METHODS[self._mutation_method](i, self._max_depth) for i in children]
         # Train mutated population
-        # for ind in mutated_pop:
-        #     ind.train(self._training_data)
         for ind in mutated_children:
             ind.train(self._training_data)
 
@@ -66,7 +56,6 @@ class GP:
 
         # Sort the population again
         # Set the final population for this generation to be the lambda best individuals
-        # self._population = sorted(mutated_pop)[:self._lambda]
         self._population = sorted(new_pop)[:self._lambda]
 
         # print(f'BEST IND FOR GEN (fitness = {self._population[0].fitness}):\n{self._population[0]}', file=sys.stderr)
