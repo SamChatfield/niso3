@@ -1,3 +1,4 @@
+import logging
 import math
 import operator
 from collections import namedtuple
@@ -160,11 +161,19 @@ class Expression:
                 # For complex results return 0
                 if isinstance(res, complex):
                     return 0
-                # Return the result
+                # If the result is inf (operation overflowed) return 0
+                if math.isinf(res):
+                    return 0
+                # If the result is NaN something has gone wrong
+                if math.isnan(res):
+                    raise Exception(f'Res gave NaN for func={func} and args={evaluated_args}')
+                # Otherwise, return the result
                 return res
             except (ZeroDivisionError, OverflowError):
+                # If we have a division by 0 or a pow operation overflows return 0
                 return 0
             except ValueError as err:
+                # If we have a math domain error from e.g. sqrt(-1) return 0
                 if 'math domain error' in str(err):
                     return 0
                 raise err
