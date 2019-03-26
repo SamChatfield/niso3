@@ -1,4 +1,4 @@
-import sys
+import logging
 from math import floor
 
 import crossover
@@ -72,11 +72,12 @@ class GP:
         # print(f'BEST IND FOR GEN (fitness = {self._population[0].fitness}):\n{self._population[0]}', file=sys.stderr)
         # print(f'BEST FITNESS FOR GEN = {self._population[0].fitness}', file=sys.stderr)
         self._best_individuals.append(self._population[0])
+        logging.debug('BEST IND FOR GEN (fitness = %s):\n%s', self._population[0].fitness, self._population[0])
 
     def run(self, generations):
         for i in range(generations):
             self.generation()
-            print(f'GEN {i}', file=sys.stderr)
-            print(f'FITNESSES: {sorted([i.fitness for i in self._population])}', file=sys.stderr)
-            print(f'LENGTHS: {sorted([len(i.expression) for i in self._population])}', file=sys.stderr)
+            logging.debug('GEN %s', i)
+            logging.debug('FITNESSES: %s', sorted([i.fitness for i in self._population]))
+            logging.debug('LENGTHS: %s', sorted([len(i.expression) for i in self._population]))
         return self._best_individuals[-1]

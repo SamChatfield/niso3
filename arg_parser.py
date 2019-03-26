@@ -51,4 +51,8 @@ def parse():
         '-time_budget',
         type=int
     )
+    parser.add_argument(
+        '-debug',
+        action='store_true'
+    )
     return parser.parse_args()

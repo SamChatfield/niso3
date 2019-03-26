@@ -1,13 +1,16 @@
 import csv
+import logging
 import sys
 import time
-from statistics import mean
 from threading import Event, Thread
 
 import arg_parser
 from expression import Expression
 from gp import GP
 from individual import Individual
+
+
+logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.WARNING)
 
 
 def question1(expr, x):
@@ -38,9 +41,6 @@ def gp_thread(stop_event, lambda_, training_data, best_individuals):
     i = 0
     while not stop_event.is_set() and i < 1000:
         gpobj.generation()
-        # print(f'GEN {i}', file=sys.stderr)
-        # print(f'FITNESSES: {sorted([i.fitness for i in gpobj._population])}', file=sys.stderr)
-        # print(f'LENGTHS: {sorted([len(i.expression) for i in gpobj._population])}', file=sys.stderr)
         i += 1
 
 
@@ -53,34 +53,39 @@ def question3(lambda_, data, time_budget):
     thread.start()
     time.sleep(time_budget)
     thread_stop.set()
-    thread.join()
-    print(f'RAN FOR {time.time() - start_time} seconds, completing {len(best_individuals)} generations', file=sys.stderr)
+    if not best_individuals:
+        thread.join()
+    logging.debug('RAN FOR %s seconds, completing %s generations', (time.time() - start_time), len(best_individuals))
     best_ind = best_individuals[-1]
     return best_ind
 
 
 def main():
-    print('main', file=sys.stderr)
     args = arg_parser.parse()
-    print('Question:\n{}\n'.format(args.question), file=sys.stderr)
-    print('Expr:\n{}\n'.format(args.expr), file=sys.stderr)
-    print('N:\n{}\n'.format(args.n), file=sys.stderr)
-    print('X:\n{}\n'.format(args.x), file=sys.stderr)
+
+    if args.debug:
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+
+    logging.debug('Question: %s', args.question)
+    logging.debug('Expr: %s', args.expr)
+    logging.debug('N: %s', args.n)
+    logging.debug('X: %s', args.x)
 
     if args.question == 1:
-        print('question 1:\n', file=sys.stderr)
+        logging.debug('question 1:')
         print(question1(args.expr, args.x))
     elif args.question == 2:
-        print('question 2', file=sys.stderr)
+        logging.debug('question 2')
         print(question2(args.expr, args.data))
     elif args.question == 3:
-        print('question 3', file=sys.stderr)
+        logging.debug('question 3')
         best_ind = question3(args.lambda_, args.data, args.time_budget)
-        print('BEST IND:', file=sys.stderr)
+        logging.debug('BEST IND:')
         print(best_ind)
-        print(f'FITNESS: {best_ind.fitness}', file=sys.stderr)
+        logging.debug('FITNESS: %s', best_ind.fitness)
     else:
-        print('Error: Invalid question number supplied', file=sys.stderr)
+        logging.error('Invalid question number supplied')
         sys.exit(1)
 
 
