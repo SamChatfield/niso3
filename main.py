@@ -54,8 +54,6 @@ def question3(lambda_, data, time_budget):
     time.sleep(time_budget)
     thread_stop.set()
     thread.join(2)
-    # if thread.is_alive():
-    #     raise Exception('Thread did not terminate within 2 seconds')
     best_ind = best_individuals[-1]
     print(f'RAN FOR {time.time() - start_time} seconds', file=sys.stderr)
     return best_ind

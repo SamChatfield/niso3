@@ -78,3 +78,4 @@ class GP:
             print(f'GEN {i}', file=sys.stderr)
             print(f'FITNESSES: {sorted([i.fitness for i in self._population])}', file=sys.stderr)
             print(f'LENGTHS: {sorted([len(i.expression) for i in self._population])}', file=sys.stderr)
+        return self._best_individuals[-1]
