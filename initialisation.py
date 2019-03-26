@@ -1,5 +1,6 @@
 import random
 import sys
+import math
 
 from expression import FUNC_MAP, Expression
 from individual import Individual
@@ -51,12 +52,18 @@ def growth(lambda_, max_depth, p_early_terminal=0.1):
     return pop
 
 
-def ramped(lambda_, max_depth):
-    pass
-
+def half_and_half(lambda_, max_depth):
+    assert lambda_ >= 2 * (max_depth - 1)
+    part_size = math.floor(lambda_ / (2 * (max_depth - 1)))
+    print(f'Init with half and half: lambda={lambda_}, max_depth={max_depth}, part_size = {part_size}')
+    pop = []
+    for n in range(2, max_depth + 1):
+        pop += full(part_size, n)
+        pop += growth(part_size, n)
+    return pop
 
 INIT_METHODS = {
     'full': full,
     'growth': growth,
-    'ramped': ramped
+    'half_and_half': half_and_half
 }

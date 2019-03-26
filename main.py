@@ -53,9 +53,9 @@ def question3(lambda_, data, time_budget):
     thread.start()
     time.sleep(time_budget)
     thread_stop.set()
-    thread.join(2)
+    thread.join()
+    print(f'RAN FOR {time.time() - start_time} seconds, completing {len(best_individuals)} generations', file=sys.stderr)
     best_ind = best_individuals[-1]
-    print(f'RAN FOR {time.time() - start_time} seconds', file=sys.stderr)
     return best_ind
 
 
