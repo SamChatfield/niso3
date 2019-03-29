@@ -1,0 +1,133 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper]{geometry}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+
+\title{
+  Time Series Prediction with Genetic Programming\\
+  \large Advanced Aspects of Nature-Inspired Search and Optimisation
+}
+\author{
+  Sam Chatfield\\
+  1559986
+}
+\date{25 March, 2019}
+
+\begin{document}
+
+\maketitle
+
+\section{Algorithms}
+
+\begin{algorithm}[H]
+  \DontPrintSemicolon
+  \KwIn{lambda, trainingData, timeBudget}
+  \KwOut{The fittest solution found within the budgeted time}
+  \Begin {
+    population $\gets$ INITIALISE(lambda, maxDepth)\;\
+
+    computeFitnesses(population, trainingData)\;
+    population $\gets$ sortByFitness(population)\;\
+
+    \While {$elapsedTime < timeBudget$} {
+      (parents, nonParents) $\gets$ SELECT(population)\;
+      children $\gets$ CROSSOVER(parents)\;
+      mutated $\gets$ MUTATE(nonParents)\;\
+
+      population $\gets$ population $\cup$ children $\cup$ mutated\;
+      computeFitnesses(population, trainingData)\;
+      population $\gets$ sortByFitness(population)\;
+      population $\gets$ population[0, lambda-1]\;
+    }\
+
+    \Return {$population[0]$}\;
+  }
+  \caption{Genetic Algorithm}
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \DontPrintSemicolon
+  \KwIn{lambda, maxDepth}
+  \KwOut{population}
+  \Begin {
+    population $\gets \emptyset$\;
+    partSize $\gets \ceil[\Big]{\frac{lambda}{2(maxDepth - 1)}}$\;\
+
+    \For {$d \gets 2$ \KwTo $maxDepth$} {
+      population $\gets$ population $\cup$ fullMethod(partSize, d)\;
+      population $\gets$ population $\cup$ growthMethod(partSize, d)\;
+    }\
+
+    \Return {$population[0, lambda$-$1]$}
+  }
+  \caption{INITIALISE (Ramped Half-and-Half)}
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \DontPrintSemicolon
+  \KwIn{N, sortedPopulation}
+  \KwOut{(parentPairs, nonParents)}
+  \Begin {
+    parents $\gets$ sortedPopulation[0, N-1]\;
+    parentPairs $\gets$ zip(parents[evens], parents[odds])\;\
+
+    nonParents $\gets$ sortedPopulation[N, end]\;\
+
+    \Return {$(parentPairs, nonParents)$}
+  }
+  \caption{SELECT (Truncation)}
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \DontPrintSemicolon
+  \KwIn{parentPairs}
+  \KwOut{children}
+  \Begin {
+    children $\gets \emptyset$\;\
+
+    \For {(p1, p2) $\in$ parentPairs} {
+      p1Idx $\gets$ rand(0, length(p1))\;
+      p2Idx $\gets$ rand(0, length(p2))\;\
+
+      p1Subtree $\gets$ subtreeAt(p1, p1Idx)\;
+      p2Subtree $\gets$ subtreeAt(p2, p2Idx)\;\
+
+      c1 $\gets$ replaceSubtreeAt(p1, p1Idx, p2Subtree)\;
+      c2 $\gets$ replaceSubtreeAt(p2, p2Idx, p1Subtree)\;\
+
+      children $\gets$ children $\cup$ \{c1, c2\}\;
+    }\
+
+    \Return {$children$}
+  }
+  \caption{CROSSOVER (Branch Swap)}
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \DontPrintSemicolon
+  \KwIn{individuals, mutationRate, maxDepth}
+  \KwOut{mutated}
+  \Begin {
+    mutated $\gets \emptyset$\;\
+
+    \For {ind $\in$ individuals} {
+      \If {rand(0.0, 1.0) $<$ mutationRate} {
+        replIdx $\gets$ rand(length(ind))\;
+        newExpr $\gets$ growthMethod(1, maxDepth)\;\
+
+        newInd $\gets$ replaceSubtreeAt(ind, replIdx, newExpr)\;\
+
+        mutated $\gets$ mutated $\cup$ \{newInd\}
+      }
+    }\
+
+    \Return {$mutated$}
+  }
+  \caption{MUTATE (Branch Replacement)}
+\end{algorithm}
+
+\section{Parameters}
+
+\end{document}
