@@ -1,14 +1,14 @@
-import sys
-from random import randrange
+import random
 
 from individual import Individual
 from initialisation import growth
 
 
-def branch_replacement(ind: Individual, max_depth) -> Individual:
+def branch_replacement(ind, max_depth, mutation_rate=1.0):
+    if random.random() > mutation_rate:
+        return None
     # Choose the index of the subtree to replace
-    repl_idx = randrange(len(ind.expression))
-    # print(f'REPL_IDX = {repl_idx} from len = {len(ind.expression)} from ind = {ind.expression}')
+    repl_idx = random.randrange(len(ind.expression))
     new_expr = growth(1, max_depth)[0].expression
     assert new_expr is not None
 

@@ -1,5 +1,4 @@
 import random
-import sys
 import math
 
 from expression import FUNC_MAP, Expression
@@ -15,7 +14,7 @@ def _random_function():
 
 
 def _random_terminal():
-    return random.uniform(-1.0, 1.0)
+    return random.uniform(-10.0, 10.0)
 
 
 def random_expression(max_depth=5, p_early_terminal=0):
@@ -35,21 +34,19 @@ def random_expression(max_depth=5, p_early_terminal=0):
 
 
 def full(lambda_, depth):
-    pop = []
-    for i in range(lambda_):
+    pop = set()
+    while len(pop) < lambda_:
         ind = Individual(random_expression(depth))
-        # print(f'ind i={i}:\n{ind}\n', file=sys.stderr)
-        pop.append(ind)
-    return pop
+        pop.add(ind)
+    return list(pop)
 
 
 def growth(lambda_, max_depth, p_early_terminal=0.1):
-    pop = []
-    for i in range(lambda_):
+    pop = set()
+    while len(pop) < lambda_:
         ind = Individual(random_expression(max_depth, p_early_terminal))
-        # print(f'ind i={i}:\n{ind}\n', file=sys.stderr)
-        pop.append(ind)
-    return pop
+        pop.add(ind)
+    return list(pop)
 
 
 def half_and_half(lambda_, max_depth):
@@ -57,8 +54,14 @@ def half_and_half(lambda_, max_depth):
     part_size = math.ceil(lambda_ / (2 * (max_depth - 1)))
     pop = []
     for n in range(2, max_depth + 1):
-        pop += full(part_size, n)
-        pop += growth(part_size, n)
+        part_pop = set()
+        while len(part_pop) < part_size * 2:
+            full_inds = full(part_size, n)
+            growth_inds = growth(part_size, n)
+
+            part_pop.update({ind for inds in zip(full_inds, growth_inds) for ind in inds})
+        pop += list(part_pop)
+
     return pop[:lambda_]
 
 INIT_METHODS = {

@@ -7,7 +7,6 @@ class Individual:
         self._expression = expression
         self._training_data = training_data
         self._fitness = None
-        self._expression_str_saved = None
 
     def __str__(self):
         return self._expression.__str__()
@@ -19,6 +18,9 @@ class Individual:
 
     def __lt__(self, other_ind):
         return self.fitness < other_ind.fitness
+
+    def __hash__(self):
+        return hash(str(self))
 
     @property
     def expression(self):
@@ -37,9 +39,6 @@ class Individual:
         if self._fitness is None:
             sq_errs = [self._sq_err(x, y) for x, y in self._training_data.items()]
             self._fitness = mean(sq_errs)
-            self._expression_str_saved = str(self._expression)
-        # Make sure that the expression hasn't changed since we calculated fitness
-        assert str(self._expression) == self._expression_str_saved
         return self._fitness
 
     def train(self, training_data):
