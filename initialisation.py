@@ -49,7 +49,7 @@ def growth(lambda_, max_depth, p_early_terminal=0.1):
     return list(pop)
 
 
-def half_and_half(lambda_, max_depth):
+def half_and_half(lambda_, max_depth, p_early_terminal=0.1):
     assert lambda_ >= 2 * (max_depth - 1)
     part_size = math.ceil(lambda_ / (2 * (max_depth - 1)))
     pop = []
@@ -57,7 +57,7 @@ def half_and_half(lambda_, max_depth):
         part_pop = set()
         while len(part_pop) < part_size * 2:
             full_inds = full(part_size, n)
-            growth_inds = growth(part_size, n)
+            growth_inds = growth(part_size, n, p_early_terminal)
 
             part_pop.update({ind for inds in zip(full_inds, growth_inds) for ind in inds})
         pop += list(part_pop)

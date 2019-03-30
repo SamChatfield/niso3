@@ -1,5 +1,6 @@
 {
     "python.pythonPath": "venv/bin/python",
     "python.linting.pylintEnabled": true,
-    "python.linting.pylintUseMinimalCheckers": false
+    "python.linting.pylintUseMinimalCheckers": false,
+    "editor.wordWrap": "on"
 }

@@ -6,8 +6,8 @@ import time
 from threading import Event, Thread
 
 import arg_parser
+import gp
 from expression import Expression
-from gp import GP
 from individual import Individual
 
 logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.WARNING)
@@ -45,21 +45,8 @@ def gp_thread(stop_event, lambda_, training_data, best_individuals):
 
 
 def question3(lambda_, data, time_budget):
-    start_time = time.time()
     training_data = parse_data(data)
-    best_individuals = queue.LifoQueue()
-    thread_stop = Event()
-    thread = Thread(
-        target=gp_thread,
-        args=(thread_stop, lambda_, training_data, best_individuals),
-        daemon=True
-    )
-    thread.start()
-    time.sleep(time_budget)
-    thread_stop.set()
-    logging.debug('RAN FOR %s seconds, completing %s generations', (time.time() - start_time), best_individuals.qsize())
-    best_ind = best_individuals.get(timeout=10.0)
-    return best_ind
+    return gp.run_gp(time_budget, lambda_, training_data)
 
 
 def main():

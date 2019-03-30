@@ -108,3 +108,4 @@ containerfs/
 logs/
 report/*
 !report/report.tex
+!report/images/

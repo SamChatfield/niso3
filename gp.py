@@ -1,6 +1,7 @@
 import logging
 import queue
 import time
+import threading
 from math import floor
 
 import crossover
@@ -98,3 +99,28 @@ class GP:
             logging.debug('FITNESSES: %s', sorted([ind.fitness for ind in self._population]))
             logging.debug('LENGTHS: %s', sorted([len(ind.expression) for ind in self._population]))
         return self._best_individuals.get()
+
+
+def _run_gp_thread(stop_event, results_queue, lambda_, training_data, gp_kwargs):
+    gp_kwargs = gp_kwargs if gp_kwargs is not None else {}
+    gp_obj = GP(lambda_, training_data, results_queue, **gp_kwargs)
+    i = 0
+    while not stop_event.is_set() and i < 1000:
+        gp_obj.generation()
+
+
+def run_gp(time_budget, lambda_, training_data, gp_kwargs=None):
+    best_individuals = queue.LifoQueue()
+
+    gp_thread_stop = threading.Event()
+    gp_thread = threading.Thread(
+        target=_run_gp_thread,
+        args=(gp_thread_stop, best_individuals, lambda_, training_data, gp_kwargs),
+        daemon=True
+    )
+    gp_thread.start()
+    time.sleep(time_budget)
+    gp_thread_stop.set()
+
+    best_individual = best_individuals.get(timeout=10.0)
+    return best_individual
