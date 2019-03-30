@@ -2,6 +2,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage[a4paper]{geometry}
 \usepackage[ruled,vlined]{algorithm2e}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
 \usepackage{mathtools}
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 
@@ -21,7 +23,35 @@
 
 \section{Algorithms}
 
-\begin{algorithm}[H]
+The pseudo-code representing my Genetic Algorithm is given by Algorithm \ref{alg:ga}.
+The functions INITIALISE, SELECT, CROSSOVER, and MUTATE are the genetic operators that I have chosen to use in my implementation and are given by Algorithms \ref{alg:init}, \ref{alg:sel}, \ref{alg:cross} and \ref{alg:mut} respectively.
+One of my aims when creating the algorithm was to ensure convergence by keeping the algorithm elitist and able to jump from one solution to any other within the solution space.
+By keeping the best solutions and implementing a mutation operator which replaces sub-trees of solutions with newly generated expressions, I have achieved these properties.
+Hence, my algorithm will always reach the global optimal solution with a sufficiently large time budget.
+In the case of the test data set used by the marking script, my algorithm is able to reach near-optimal solutions within a relatively short time budget.
+My algorithm also ensures that there are no duplicate solutions within the population both in the initial creation of the population, and after applying the genetic operations in each generation.
+
+For the INITIALISE genetic operator, I actually implemented all three of the full, growth and ramped half-and-half methods which can be chosen as a parameter within my code.
+Here I have outlined the ramped half-and-half method which is the default.
+The function takes the ceiling of the computed $partSize$ to ensure that for any $lambda$ and $maxDepth$ at least lambda solutions will be generated.
+At the end I then reduce the generated population to contain exactly $lambda$ individuals.
+
+The SELECT genetic operator I have implemented is a simple truncation selection which returns pairs of individuals chosen to be passed to CROSSOVER and also all of the solutions not chosen to be parents at all.
+Using truncation selection leaves room for improvement and I believe the diversity of solutions could potentially be increased by using some kind of stochastic sort and then selecting from the result of that.
+The fittest $N$ solutions could be chosen to be sorted correctly, and then the remaining solutions in the population could be sorted with some probability $P$ of sorting them out-of-order; where $N$ and $P$ would be tunable parameters.
+This keeps the algorithm elitist but would allow for more exploration of the search space.
+
+The CROSSOVER approach I have implemented is the Branch Swap method where nodes are chosen uniformly at random in both parent expression trees, and then the sub-trees from those nodes are swapped to create two child solutions.
+My actual Python implementation does this in an immutable way so that the parent solutions are preserved in the population and the child solutions are simply added to it.
+
+For the MUTATION operator, I have implemented a Branch Replacement algorithm.
+Here, I choose a node in the parent uniformly at random and replace the subtree from that node with a new expression tree generated using the growth initialisation method.
+Similarly to the CROSSOVER operator, my implementation performs this immutably such that at the end both the parent and child are in the population.
+There is also a mutation rate parameter which gives the probability that a given mutation candidate individual will be mutated.
+
+\begin{algorithm}[h]
+  \caption{Genetic Algorithm}
+  \label{alg:ga}
   \DontPrintSemicolon
   \KwIn{lambda, trainingData, timeBudget}
   \KwOut{The fittest solution found within the budgeted time}
@@ -44,10 +74,11 @@
 
     \Return {$population[0]$}\;
   }
-  \caption{Genetic Algorithm}
 \end{algorithm}
 
-\begin{algorithm}[H]
+\begin{algorithm}[h]
+  \caption{INITIALISE (Ramped Half-and-Half)}
+  \label{alg:init}
   \DontPrintSemicolon
   \KwIn{lambda, maxDepth}
   \KwOut{population}
@@ -62,10 +93,11 @@
 
     \Return {$population[0, lambda$-$1]$}
   }
-  \caption{INITIALISE (Ramped Half-and-Half)}
 \end{algorithm}
 
-\begin{algorithm}[H]
+\begin{algorithm}[h]
+  \caption{SELECT (Truncation)}
+  \label{alg:sel}
   \DontPrintSemicolon
   \KwIn{N, sortedPopulation}
   \KwOut{(parentPairs, nonParents)}
@@ -77,10 +109,11 @@
 
     \Return {$(parentPairs, nonParents)$}
   }
-  \caption{SELECT (Truncation)}
 \end{algorithm}
 
-\begin{algorithm}[H]
+\begin{algorithm}[h]
+  \caption{CROSSOVER (Branch Swap)}
+  \label{alg:cross}
   \DontPrintSemicolon
   \KwIn{parentPairs}
   \KwOut{children}
@@ -102,10 +135,11 @@
 
     \Return {$children$}
   }
-  \caption{CROSSOVER (Branch Swap)}
 \end{algorithm}
 
-\begin{algorithm}[H]
+\begin{algorithm}[h]
+  \caption{MUTATE (Branch Replacement)}
+  \label{alg:mut}
   \DontPrintSemicolon
   \KwIn{individuals, mutationRate, maxDepth}
   \KwOut{mutated}
@@ -125,9 +159,48 @@
 
     \Return {$mutated$}
   }
-  \caption{MUTATE (Branch Replacement)}
 \end{algorithm}
 
 \section{Parameters}
+
+During the creation of my genetic algorithm, I tried to parameterise as many of the algorithm design choices as possible so that experiments could be carried out later to determine an optimal combination.
+In this section I will explore a few of these parameters in an attempt to optimise the genetic algorithm's performance against the test dataset utilised by the Docker marking container.
+
+Throughout my experiments I will keep the time budget fixed to 20 seconds - one of the values used by the marking script.
+My justification for this is that 20 seconds should be a reasonable amount of time for the effects of different parameter values to become noticeable; while also not being too long such that each leads to similar fitness values as a result of the convergent nature of my algorithm.
+For each parameter value being tested I will use 100 independent runs and create box plots of the best fitness value returned from each run.
+
+The first parameter that I will explore is the maximum tree depth used to initialise the population.
+As part of my solution, I have implemented the full, growth and ramped half-and-half initialisation methods and all of these require a depth or maximum depth parameter.
+The default method used by my solution is ramped half-and-half, so I will keep this method fixed across the experiments to determine an optimal maximum tree depth.
+Box plots for the experimental results are shown in Figure \ref{fig:max_depth}.
+From these results it is clear that maximum tree depths of 2 and 3 are significantly better than 4, 5 and 6 when run with a fixed time budget.
+I believe this is due to the smaller tree sizes leading to faster generations and thus more generations being completed within the time budget.
+This allows some of the solutions within the population to make more progress towards converging on an optimal solution.
+
+\begin{figure}[h]
+\includegraphics[scale=0.45]{max_depth}
+\centering
+\caption{Maximum tree depth experiments over the range of values $maxDepth \in [2..6]$}
+\label{fig:max_depth}
+\end{figure}
+
+MUTATION RATE.
+
+\begin{figure}[h]
+  \includegraphics[scale=0.4]{mutation_target}
+  \centering
+  \caption{Mutation target experiments where $mutationTarget$ is either $'non\_parents'$ or $'children\_and\_non\_parents'$}
+  \label{fig:mutation_target}
+  \end{figure}
+
+LAMBDA.
+
+\begin{figure}[h]
+  \includegraphics[scale=0.5]{mutation_rate}
+  \centering
+  \caption{Mutation rate experiments where $mutationRate \in \{0.2, 0.4, 0.6, 0.8\}$}
+  \label{fig:mutation_rate}
+  \end{figure}
 
 \end{document}
